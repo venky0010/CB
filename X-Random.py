@@ -10,9 +10,9 @@ from sklearn.linear_model import LogisticRegression
 %matplotlib inline
 
 
-actions = pd.read_excel('Actions.xlsx')
-user = pd.read_excel('user_data.xlsx')
-test = pd.read_excel('test.xlsx')
+actions = pd.read_excel('Actions.xlsx')                                      #Reading file with product/Actions features
+user = pd.read_excel('user_data.xlsx')                                       #Reading historical data which contains user features and features of product bought
+test = pd.read_excel('test.xlsx')                                            #Reading test data (contains only user info/features)
 
 actions = actions.fillna('missing')
 user = user.fillna('missing')
@@ -21,13 +21,13 @@ actions = actions.drop(['plan_id', 'spark_plan_name', 'unique_tag'], axis=1)
 user = user.drop(['user_id', 'unique_tag'], axis=1)
 test = test.drop(['user_id'], axis=1)
 
-def ohe_actions(actions):
+def ohe_actions(actions):          #One hot encoding of product data
     
     action_set = pd.DataFrame(np.zeros((26, 10)) ,columns = ['AMOUNT', 'LMF', 'DIGITAL_GOLD', 'INSURANCE', 'TAX', 'CREDIT', 'MEDIUM PLAN', 'MINI PLAN', 'LARGE PLAN', 'INVESTMENT'])
     for row in range(26):
     
         for col in actions.columns:
-                                                                #Amount
+                                     
             if col == 'amount':                     
                 val = actions.loc[row, col]
                 if val == 'missing':
@@ -185,7 +185,7 @@ def ohe_test(test):
     return user_features
 
 
-for i in range(1, 20):
+for i in range(1, 20):                                #Add data using NNs idea
     
     for j in range(-2, 3):
     
@@ -199,7 +199,7 @@ for i in range(1, 20):
         hist = hist.append(x, ignore_index=True)
         
         
-def initialize_models(Z, user, action):  
+def initialize_models(Z, user, action):                      #Train 100 Logistic Regression models
     
     X = create_random_zeros(Z, user, action)
     X = X.sample(frac=1).reset_index(drop=True)
@@ -714,7 +714,7 @@ def initialize_models(Z, user, action):
             lr81, lr82, lr83, lr84, lr85, lr86, lr87, lr88, lr89, lr90,
             lr91, lr92, lr93, lr94, lr95, lr96, lr97, lr98, lr99, lr100]
 
-def create_random_zeros(X, user, action):
+def create_random_zeros(X, user, action):                                                     #Create data with REWARD = 0 (Data where user didnt buy any product)
 
     df1 = pd.DataFrame(np.random.randint(0, 2, size=(1000, 1)), columns=['MALE'])
     df2 = pd.DataFrame([1-i for i in df1['MALE'].tolist()], columns=['FEMALE'])
@@ -741,7 +741,7 @@ def create_random_zeros(X, user, action):
     Y = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12, df13, df14, df15, df16], axis=1)
     X = X.append(Y, ignore_index=True)
     
-    for col1 in user.columns:
+    for col1 in user.columns:                                       #Create all interation factors (For ex. Amount*Medium plan) which acts as features in training set
         for col2 in action.columns:
             col_name = col1+"_"+col2
             x = X.loc[:, col1]*X.loc[:, col2]
@@ -750,17 +750,17 @@ def create_random_zeros(X, user, action):
     
     return X
 
-
+#Prediction algorithm starts here
 result = []
-models = initialize_models(hist, user, action)
+models = initialize_models(hist, user, action) #Contains 100 LR Models learnt
 
-for user_feature in range(len(user)):
+for user_feature in range(len(user)):          #Pick a new user from test with user features
     
-    user_result = []
+    user_result = []                           #Stores arm/action/product to be recommended to the new user
     
-    for arm_feature in range(len(action)):
+    for arm_feature in range(len(action)):     #Select a arm/action/product 
         
-        model_result = []
+        model_result = []                      #Stores result for all arms given by LR models
         inp = []
         for i in user.loc[user_feature]:
             inp.append(i)
@@ -773,22 +773,22 @@ for user_feature in range(len(user)):
 
         for model in models:
             
-            out = model.predict_proba([inp])[0][1]
+            out = model.predict_proba([inp])[0][1]          #Outputs probability i.e., Probability(Reward = 1 | Arm = i)
             model_result.append(out)
             
-        model_result = sorted(model_result, reverse=True)
-        max_of_95th_percentile = model_result[6]
-        user_result.append((arm_feature, max_of_95th_percentile))
+        model_result = sorted(model_result, reverse=True)   #Sort the probabilities
+        max_of_95th_percentile = model_result[6]            #Select the top probability from 95th %ile
+        user_result.append((arm_feature, max_of_95th_percentile)) #append it
     
-    user_result = sorted(user_result,reverse = True, key = lambda x: x[1])
+    user_result = sorted(user_result,reverse = True, key = lambda x: x[1])   #Sort the probabilities of all arms
     print(user_result)
-    result.append(user_result[:5])
+    result.append(user_result[:5])                                           #Save top 5 arms for recommendations
     
     
     
 import random
 
-actions_ = pd.read_excel('Actions.xlsx')
+actions_ = pd.read_excel('Actions.xlsx')                                     #This code block is to make recommendations to the user using unique_tag
 reco = []
 for i in result:
     index = []
