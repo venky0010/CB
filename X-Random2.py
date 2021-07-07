@@ -24,7 +24,7 @@ def Data_PreProcessing(train, actions, test):
     
     return train, actions, test
 
-def OHE_Function(column, values, train):
+def OHE_Function(column, values, train):                                 #One-hot-encoding of data
     
     c = []
     for val in values:
@@ -43,7 +43,7 @@ def OHE_Function(column, values, train):
         
     return dummy
 
-def OHE_Data(train, actions, test):
+def OHE_Data(train, actions, test):                                      #Which data gets one-hot-encoded
     
     train_ohe = pd.DataFrame([i for i in range(len(train))], columns=['Index'])
     for column in train.columns:
@@ -77,7 +77,7 @@ def OHE_Data(train, actions, test):
     
     return train_ohe, actions_ohe, test_ohe
 
-def train_model(true, false):
+def train_model(true, false):                                               #Model training
     
     models = {}
     
@@ -104,8 +104,10 @@ train_ohe, actions_ohe, test_ohe = Data_PreProcessing(train, actions, test)
 TRUE = train_ohe[train_ohe['REWARD'] == 1]
 FALSE = train_ohe[train_ohe['REWARD'] == 0]
 
+
+#Prediction code starts from here.
 models = train_model(TRUE, FALSE)
-result = []
+result = []                             #Saves prediction for user in the test data
 for user in range(len(test_ohe)):
     
     user_result = []
