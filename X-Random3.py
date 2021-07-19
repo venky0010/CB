@@ -194,7 +194,7 @@ def RUN(train, test, actions):
             user_result.append((arm, max_of_95_percentile))
 
         user_result = sorted(user_result, reverse =True, key = lambda x: x[1])
-        result.append(user_result[0])
+        result.append(actions.loc[user_result[0][0]])
     return result
   
 result = RUN(train_ohe, test_ohe, actions_ohe)
