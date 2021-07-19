@@ -78,7 +78,7 @@ def OHE(train, test, actions):
     actions_ohe = pd.DataFrame([i for i in range(len(actions))], columns=['Index'])
     for column in ['COMPONENTS', 'AMOUNT', 'PLAN_SIZE', 'MEDIUM']:
         values = features[column]
-        print(values)
+        #print(values)
         if values == 0:
             actions_ohe=actions_ohe.join(actions[column])
             continue
@@ -138,7 +138,7 @@ def feature_interaction(data):
                        'IVR_MEDIUM', 'PUSH NOTIFICATIONS_MEDIUM']
     for col1 in user_columns:
         for col2 in product_columns:
-            print(col1, col2)
+            #print(col1, col2)
             data[str(col1)+'_'+str(col2)] = data[col1]*data[col2]
     return data
   
@@ -158,9 +158,6 @@ def train_model(data):
     print(end-start)
     return models
 
-
-  
-  
 def RUN(train, test, actions):
     
     train_zero = Create_Reward_Zero_data(train, features, 500)
@@ -196,5 +193,10 @@ def RUN(train, test, actions):
         user_result = sorted(user_result, reverse =True, key = lambda x: x[1])
         result.append(actions.loc[user_result[0][0]])
     return result
-  
-result = RUN(train_ohe, test_ohe, actions_ohe)
+
+
+variables = pd.read_csv('Variables.csv')
+train = pd.read_csv('train.csv')
+test = pd.read_excel('test.xlsx')
+actions = pd.read_csv('actions.csv')
+result = RUN(train, test, actions)
