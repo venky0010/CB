@@ -157,20 +157,18 @@ def train_model(data):
     end = time.time()
     print(end-start)
     return models
-models = train_model(train_ohe)  
-  
-train_zero = Create_Reward_Zero_data(train, features, 500)
-train_one = train.sample(n=500)
-train_final = pd.concat([train_one, train_zero], ignore_index=True)
-train_ohe, test_ohe, actions_ohe = OHE(train_final, test, actions)
 
-def RUN(models, train_ohe, test_ohe, actions_ohe):
+
+  
+  
+def RUN(train, test, actions):
     
-    #train_zero = Create_Reward_Zero_data(train, features, 500)
-    #train_one = train.sample(n=500)
-    #train_final = pd.concat([train_one, train_zero], ignore_index=True)
-    #train_ohe, test_ohe, actions_ohe = OHE(train_final, test, actions)
-    
+    train_zero = Create_Reward_Zero_data(train, features, 500)
+    train_one = train.sample(n=500)
+    train_final = pd.concat([train_one, train_zero], ignore_index=True)
+    train_ohe, test_ohe, actions_ohe = OHE(train_final, test, actions)
+    models = train_model(train_ohe)
+            
     result = []
     for user in range(len(test_ohe)):
     
@@ -199,4 +197,4 @@ def RUN(models, train_ohe, test_ohe, actions_ohe):
         result.append(user_result[0])
     return result
   
-result = RUN(models, train_ohe, test_ohe, actions_ohe)
+result = RUN(train_ohe, test_ohe, actions_ohe)
